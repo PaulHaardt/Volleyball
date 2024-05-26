@@ -28,15 +28,21 @@ public class GameManager : MonoBehaviour
     [Header("Camera Settings")] [Range(0, 10)]
     public float cameraFollowSpeed;
 
-    [Range(0, 10)] public float cameraRectAdjustSpeed;
-    [Range(0, 1)] public float groundVisibilityPercent;
+    [SerializeField, Range(0, 10)] private float cameraRectExtendSpeed;
+    [SerializeField, Range(0, 10)] private float cameraRectReduceSpeed;
+    [SerializeField, Range(1, 10)] private float targetSizeRatio;
+    [SerializeField, Range(0, 1)] private float groundVisibilityPercent;
+
+    [Range(1, 4)] public int playerCount = 1;
+    private float _initialCameraRectSize;
 
     private void Start()
     {
         _camera = FindObjectOfType<Camera>();
+        _initialCameraRectSize = _camera.orthographicSize;
         _ball = FindObjectOfType<VolleyBall>();
 
-        SpawnPlayers(1);
+        SpawnPlayers(playerCount);
 
         if (players.Count == 0)
         {
@@ -48,14 +54,19 @@ public class GameManager : MonoBehaviour
     }
 
     // Update is called once per frame
+
+    private bool IsObjectInCameraView(Vector2 objectPosition)
+    {
+        return _camera.pixelRect.Contains(objectPosition);
+    }
+
     private void Update()
     {
         Vector3 sourceCameraPosition = _camera.transform.position;
         List<Vector3> objectsPosition = _objectsToFollow.ConvertAll(t => t.position);
 
-        Vector3 targetCameraPosition = objectsPosition.Aggregate((c, t) => c + t) / objectsPosition.Count;
-        Vector3 nextCameraPosition =
-            Vector3.Lerp(sourceCameraPosition, targetCameraPosition, Time.deltaTime * cameraFollowSpeed);
+        Vector3 nextCameraPosition = objectsPosition.Aggregate((c, t) => c + t) / objectsPosition.Count;
+        nextCameraPosition = Vector3.Lerp(sourceCameraPosition, nextCameraPosition, Time.deltaTime * cameraFollowSpeed);
 
         float targetMinX = objectsPosition.Min(a => a.x);
         float targetMaxX = objectsPosition.Max(a => a.x);
@@ -64,20 +75,20 @@ public class GameManager : MonoBehaviour
 
         // OrthographicSize
         float cameraOrthographicSize = _camera.orthographicSize;
-        float targetSize = Math.Max(5, targetMaxX - targetMinX);
+        float targetSize = Math.Max(_initialCameraRectSize + 3, (targetMaxX - targetMinX) / targetSizeRatio);
+        Debug.Log("targetSize");
+        float rectSpeed = Mathf.Sign(targetSize - cameraOrthographicSize) > 0
+            ? cameraRectExtendSpeed
+            : cameraRectReduceSpeed;
         float finalOrthographicSize =
-            Mathf.Lerp(cameraOrthographicSize, targetSize, Time.deltaTime * cameraRectAdjustSpeed);
+            Mathf.Lerp(cameraOrthographicSize, targetSize, Time.deltaTime * rectSpeed);
 
-        _camera.orthographicSize = finalOrthographicSize;
-
+        nextCameraPosition.x = sourceCameraPosition.x;
         nextCameraPosition.y = Mathf.Max(groundVisibilityPercent * finalOrthographicSize, nextCameraPosition.y);
         nextCameraPosition.z = sourceCameraPosition.z;
-        _camera.transform.position = nextCameraPosition;
-    }
 
-    private bool IsObjectInCameraView(Vector2 objectPosition)
-    {
-        return _camera.pixelRect.Contains(objectPosition);
+        _camera.orthographicSize = finalOrthographicSize;
+        _camera.transform.position = nextCameraPosition;
     }
 
     private void SpawnPlayers(int count)
