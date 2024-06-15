@@ -20,7 +20,7 @@
                     "id": "9ff0a52c-992f-4a0f-92c4-9e55f2522582",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press(pressPoint=1.401298E-45)",
                     "initialStateCheck": false
                 },
                 {
@@ -31,6 +31,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Fall",
+                    "type": "Value",
+                    "id": "cc0b6319-3096-4516-bbd0-a2ead6b17b53",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -88,6 +97,17 @@
                     "action": "ResetBall",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "038f9c6d-2d34-4735-9a22-72db9fb5c929",
+                    "path": "<Keyboard>/#(S)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Fall",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
@@ -117,6 +137,15 @@
                     "name": "ResetBall",
                     "type": "Button",
                     "id": "bb121855-fe22-4cdf-b437-1943c5a8989c",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Fall",
+                    "type": "Button",
+                    "id": "6f4b647f-037b-406b-9fff-3309b39c3ae7",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -176,6 +205,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f2b45d3b-ac43-461b-bd63-9fa8ead9b974",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Fall",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

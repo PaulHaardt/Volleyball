@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1596684081231242153}
   - component: {fileID: 1768073284919088874}
   - component: {fileID: 7029767526180459424}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.7997, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -175,7 +175,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: 1
+  m_GravityScale: 2
   m_Material: {fileID: 6200000, guid: acb35016188a8b4489d38865b8ba1add, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -201,6 +201,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 12
   slowdownX: 0
+  jumpForce: 20
+  teamNumber: 0
+  maxJumpCount: 2
+  targetColor: {r: 1, g: 0.7606493, b: 0, a: 1}
+  fallVelocity: 50
 --- !u!114 &1768073284919088874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,13 +308,57 @@ MonoBehaviour:
     m_ActionId: 6e02f72a-43c4-43a7-a8d3-ce522991fce3
     m_ActionName: Player2/Move[/Keyboard/k,/Keyboard/semicolon]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1596684081231242153}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: Jump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 9bdeffd2-0547-4829-9179-aab122f0c548
     m_ActionName: Player2/Jump[/Keyboard/o]
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: bb121855-fe22-4cdf-b437-1943c5a8989c
     m_ActionName: Player2/ResetBall[/Keyboard/r]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1596684081231242153}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: Fall
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: cc0b6319-3096-4516-bbd0-a2ead6b17b53
+    m_ActionName: Player1/Fall[/Keyboard/s]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1596684081231242153}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: Fall
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 6f4b647f-037b-406b-9fff-3309b39c3ae7
+    m_ActionName: Player2/Fall[/Keyboard/l]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player1
