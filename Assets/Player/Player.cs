@@ -129,7 +129,6 @@ public class Player : MonoBehaviour
 
     public void Fall(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Falling");
         Vector2 rigidbody2DVelocity = _rigidbody2D.velocity;
         rigidbody2DVelocity.y = -fallVelocity;
         _rigidbody2D.velocity = rigidbody2DVelocity;
