@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class Player : MonoBehaviour
     private VolleyBall _ball;
     private SpriteRenderer _spriteRenderer;
     private AudioSource _audioSource;
+    private Animator _animator;
 
     // Speed values.
     [Range(0, 20)] public float speed = 5;
@@ -22,6 +24,11 @@ public class Player : MonoBehaviour
     // Game.
     public int? ID = null;
     public int teamNumber = 0;
+    public bool Grounded { get; private set; }
+    
+    // Smash.
+    [Range(0, 3)] public float smashSlowDownDuration;
+    private static bool _isSmashSlowdownHappening;
 
     public delegate void ActionTriggeredEvent();
 
@@ -37,6 +44,10 @@ public class Player : MonoBehaviour
     [SerializeField] private Color targetColor;
     private Color _defaultColor;
     [Range(5, 50)] public float fallVelocity;
+    private readonly int _isGroundedHash = Animator.StringToHash("isGrounded");
+    private readonly int _isMovingHash = Animator.StringToHash("isMoving");
+    private readonly int _velocityXHash = Animator.StringToHash("VelocityX");
+    private readonly int _velocityYHash = Animator.StringToHash("VelocityY");
 
     private void Awake()
     {
@@ -46,10 +57,12 @@ public class Player : MonoBehaviour
 
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _ball = FindObjectOfType<VolleyBall>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _audioSource = GetComponent<AudioSource>();
+        _animator = GetComponentInChildren<Animator>();
 
         _playerInput = GetComponent<PlayerInput>();
+        _playerInput.actions["Pause"].performed += FindObjectOfType<PauseMenu>().Pause;
         // _moveAction = _playerInput.actions.FindAction("Move");
     }
 
@@ -59,6 +72,13 @@ public class Player : MonoBehaviour
         {
             Move(_movementDirection * speed);
             OnActionTriggered?.Invoke();
+
+            _animator.SetBool(_isMovingHash, true);
+            var velocity = _rigidbody2D.velocity;
+            _spriteRenderer.flipX = velocity.x < 0;
+            Vector2 offset = _rangeCollider2D.offset;
+            offset.x = velocity.x < 0 ? -.5f : .5f;
+            _rangeCollider2D.offset = offset;
         }
         else
         {
@@ -66,23 +86,71 @@ public class Player : MonoBehaviour
             velocity.x *= Time.deltaTime * slowdownX;
             _rigidbody2D.velocity = velocity;
 
-            // Debug.Log("No movement detected");
+            _animator.SetBool(_isMovingHash, false);
+        }
+
+        Vector2 rigidbody2DVelocity = _rigidbody2D.velocity;
+
+        _animator.SetFloat(_velocityXHash, rigidbody2DVelocity.x / speed);
+        _animator.SetFloat(_velocityYHash, rigidbody2DVelocity.y / speed);
+
+    }
+
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        if ((col.gameObject.layer & LayerMask.NameToLayer("Floor")) != 0)
+        {
+            Grounded = true;
+            _currentJumpCount = 0;
+            _animator.SetBool(_isGroundedHash, Grounded);
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D col)
+    private void OnTriggerStay2D(Collider2D other)
     {
-        if ((col.gameObject.layer & LayerMask.NameToLayer("Volleyball")) != 0)
+        if (_currentJumpCount == maxJumpCount && !_isSmashSlowdownHappening &&
+            (other.gameObject.layer & LayerMask.NameToLayer("Volleyball")) != 0)
         {
-            _spriteRenderer.color = targetColor;
+            _isSmashSlowdownHappening = true;
+            StartCoroutine(SlowTimeDown(smashSlowDownDuration));
         }
+    }
+
+    private static IEnumerator SlowTimeDown(float slowDownDuration)
+    {
+        float startTime = Time.unscaledTime;
+        float endTime = Time.unscaledTime + slowDownDuration;
+        
+        while ((Time.unscaledTime - endTime) / slowDownDuration < 1)
+        {
+            Time.timeScale = Mathf.Lerp(0.5f, 1, (Time.unscaledTime - endTime) / slowDownDuration);
+            yield return null;
+        }
+
+        Time.timeScale = 1;
+        _isSmashSlowdownHappening = false;
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if ((other.gameObject.layer & LayerMask.NameToLayer("Volleyball")) != 0)
+        /*
+        float rayDistance = (_capsuleCollider2D.size.y + 0.1f) / 2f;
+        // Debug.DrawRay(transform.position, Vector3.down * rayDistance, Color.red, .2f, false);
+        
+        ContactFilter2D contactFilter = new ContactFilter2D();
+        
+        // Raycast test for ground.
+        List<RaycastHit2D> results = new List<RaycastHit2D>();
+        var hit = Physics2D.Raycast(_capsuleCollider2D.transform.position, Vector2.down, contactFilter, results,
+            rayDistance);
+        bool touchesGround = hit > 0 && results.Any(h =>
+            (h.transform.gameObject.layer & LayerMask.NameToLayer("Floor")) != 0);
+            */
+
+        if ((other.gameObject.layer & LayerMask.NameToLayer("Floor")) != 0)
         {
-            _spriteRenderer.color = _defaultColor;
+            Grounded = false;
+            _animator.SetBool(_isGroundedHash, Grounded);
         }
     }
 
@@ -91,26 +159,12 @@ public class Player : MonoBehaviour
         if (!ctx.performed) return;
         OnActionTriggered?.Invoke();
 
+       if (_currentJumpCount >= maxJumpCount) return;
 
-        float rayDistance = (_capsuleCollider2D.size.y + 0.1f) / 2f;
-        // Debug.DrawRay(transform.position, Vector3.down * rayDistance, Color.red, .2f, false);
-
-        ContactFilter2D contactFilter = new ContactFilter2D();
-
-        // Raycast test for ground.
-        List<RaycastHit2D> results = new List<RaycastHit2D>();
-        var hit = Physics2D.Raycast(_capsuleCollider2D.transform.position, Vector2.down, contactFilter, results,
-            rayDistance);
-        bool touchesGround = hit > 0 && results.Any(h =>
-            (h.transform.gameObject.layer & LayerMask.NameToLayer("Floor")) != 0);
-
-        if (touchesGround) _currentJumpCount = 0;
-        else if (_currentJumpCount >= maxJumpCount) return;
-        
         _currentJumpCount++;
 
         float jumpHoldMultiplier = Mathf.Clamp((float) ctx.duration, .5f, 1);
-        
+
         Vector2 rigidbody2DVelocity = _rigidbody2D.velocity;
         rigidbody2DVelocity.y = jumpHoldMultiplier * jumpForce;
         _rigidbody2D.velocity = rigidbody2DVelocity;

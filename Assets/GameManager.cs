@@ -42,14 +42,20 @@ public class GameManager : MonoBehaviour
     public int leftTeamScore;
     public int rightTeamScore;
     private int _unfreezerTeamNumber = 0;
+    [Range(0.1f, 1)]  public float timerDuration;
     [Range(1, 2)] public float timeScaleIncreaseFactor = 1.1f;
 
+
     // UI.
-    [Header("UI Components")] [SerializeField]
-    private TMP_Text textLeftTeamScore;
+
+    [Header("UI Components")]
+    [SerializeField] private TMP_Text textLeftTeamScore;
+
     [SerializeField] private TMP_Text textRightTeamScore;
+    [SerializeField] private TMP_Text countdownText;
     private const string PrefixTextLeftTeam = "";
     private const string PrefixTextRightTeam = "";
+
 
     private void Awake()
     {
@@ -73,13 +79,14 @@ public class GameManager : MonoBehaviour
 
         // Start match.
         ResetPlayerPositions();
+        StartCoroutine(CountdownToStart());
         _ball.SetMovingState(false);
         bool doesRightStart =Random.value > .5;
         _unfreezerTeamNumber = doesRightStart ? 1 : 0;
-        _ball.ResetBallPosition((doesRightStart ? 8 : -8) * Vector2.right, 8);
+        Player any = players.Find(p => (p.teamNumber == 1) == doesRightStart);
+        _ball.ResetBallPosition(any.transform.position.x * Vector3.right, 8);
     }
 
-    // Update is called once per frame
 
     private bool IsObjectInCameraView(Vector2 objectPosition)
     {
@@ -100,8 +107,15 @@ public class GameManager : MonoBehaviour
 
     private void PrepareNextMatch()
     {
+        StartCoroutine(CountdownToStart());
+
         bool didLeftScore = UpdateScore();
+        
+        Player any = players.Find(p => (p.teamNumber == 0) == didLeftScore);
+        _ball.ResetBallPosition(any.transform.position.x * Vector3.right, 8);
+        
         _ball.ResetBallPosition((didLeftScore ? 8 : -8) * Vector2.right, 8);
+        
         _ball.ResetVelocity();
         _unfreezerTeamNumber = didLeftScore ? 1 : 0;
         ResetPlayerPositions();
@@ -109,9 +123,14 @@ public class GameManager : MonoBehaviour
         _ball.SetMovingState(false);
     }
 
-    private IEnumerator WaitToStart()
+    private IEnumerator CountdownToStart()
     {
-        yield return new WaitForSeconds(1);
+        for (int i = 3; i > 0; i--)
+        {
+            countdownText.text = $"{i}";
+            yield return new WaitForSeconds(timerDuration);
+        }
+        countdownText.text = "";
     }
 
     private bool UpdateScore()
