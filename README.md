@@ -20,7 +20,7 @@ The game was developed using Unity version 2020.3.39f1. The source code is avail
 
 ## Credits
 
-* Game developed by [Your Name](https://github.com/PaulHaardt)
+* Game developed by [UnrealPaulo](https://github.com/PaulHaardt)
 * Assets created using [Unity Asset Store](https://assetstore.unity.com/) and [free resources](https://www.google.com/search?q=free+game+assets)
 * Inspired by classic volleyball gameplay
 
