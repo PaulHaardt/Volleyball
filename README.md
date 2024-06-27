@@ -12,15 +12,15 @@ A simple 2D volleyball game made in Unity as a solo class project. The game feat
 
 ## Installation
 
-To play the game, simply download the latest release from the [releases page](https://github.com/yourusername/2d-unity-volleyball-game/releases) and run the executable file.
+To play the game, simply download the latest release from the [releases page](https://github.com/PaulHaardt/Volleyball/releases) and run the executable file.
 
 ## Development
 
-The game was developed using Unity version 2020.3.14f1. The source code is available on [GitHub](https://github.com/yourusername/2d-unity-volleyball-game). To contribute to the project, simply fork the repository and submit a pull request with your changes.
+The game was developed using Unity version 2020.3.39f1. The source code is available on [GitHub](https://github.com/PaulHaardt/Volleyball). To contribute to the project, simply fork the repository and submit a pull request with your changes.
 
 ## Credits
 
-* Game developed by [Your Name](https://github.com/yourusername)
+* Game developed by [Your Name](https://github.com/PaulHaardt)
 * Assets created using [Unity Asset Store](https://assetstore.unity.com/) and [free resources](https://www.google.com/search?q=free+game+assets)
 * Inspired by classic volleyball gameplay
 
